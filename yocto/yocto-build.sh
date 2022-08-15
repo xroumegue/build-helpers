@@ -192,6 +192,10 @@ IMAGE_FSTYPES = "tar.bz2"
 #PREFERRED_PROVIDER_virtual/kernel = "linux-dummy"
 SERIAL_CONSOLES = "115200;ttymxc1"
 
+# Use by mount-dev to get the nfs server ip address
+IMAGE_INSTALL:append = " mount-dev "
+#CONF_CUSTOM_NFS_IP_ADDRESS = "xxx.xxx.xxx.xxx"
+
 EOF
     fi
 
