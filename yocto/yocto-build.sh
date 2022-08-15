@@ -196,6 +196,10 @@ SERIAL_CONSOLES = "115200;ttymxc1"
 IMAGE_INSTALL:append = " mount-dev "
 #CONF_CUSTOM_NFS_IP_ADDRESS = "xxx.xxx.xxx.xxx"
 
+# No TRNG, accelerate boot time
+PACKAGECONFIG:remove:pn-openssh = "rng-tools"
+MACHINE_EXTRA_RRECOMMENDS += "ssh-pregen-hostkeys"
+
 EOF
     fi
 
