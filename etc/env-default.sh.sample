@@ -1,0 +1,20 @@
+#! /usr/bin/env bash
+
+export installdir_default
+export sdkdir_default
+export yocto_version_default
+export sysroot_target_default
+export sysroot_host_default
+export cross_compilation_conf_default
+export cross_compile_default
+export tftpdir_default
+
+installdir_default=/srv/nfs/yocto
+tftpdir_default=/srv/tftp/yocto
+sdkdir_default=/opt/sdk/yocto
+yocto_version_default=4.1
+sysroot_target_default=${sdkdir_default}/${yocto_version_default}/sysroots/armv8a-poky-linux/
+sysroot_host_default=${sdkdir_default}/${yocto_version_default}/sysroots/x86_64-pokysdk-linux
+# shellcheck disable=SC2154
+cross_compilation_conf_default=${rootdir}/etc/cross-compilation.conf
+cross_compile_default=${sysroot_host_default}/usr/bin/aarch64-poky-linux/aarch64-poky-linux-
