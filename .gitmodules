@@ -1,0 +1,3 @@
+[submodule "kernel/kbuild"]
+	path = kernel/kbuild
+	url = https://github.com/xroumegue/linux-kbuild.git
