@@ -28,6 +28,7 @@ cat << EOF
         setup
         build
         sdk
+        deploy
         deploy-sdk
 EOF
 }
@@ -202,6 +203,14 @@ function do_build {
     bitbake "${image}"
 }
 
+function do_deploy {
+    log "Deploying ${image}"
+    rootfsimage=$(find "${builddir}/tmp/deploy/images" -regextype posix-extended -regex ".*/${image}-${machine}\.tar\.bz2")
+    [ -e "${rootfsimage}" ] || fatal "root fs image not found"
+    log "Deploying rootfsimage $rootfsimage to ${installdir}"
+    sudo --preserve-env bash -c "rm -Rf ${installdir}; mkdir -p ${installdir}; tar -C ${installdir} -xjf ${rootfsimage};"
+}
+
 function do_sdk {
     log "Building SDK"
     do_enter_env
@@ -238,6 +247,9 @@ do
             ;;
         "build")
             do_build
+            ;;
+        "deploy")
+            do_deploy
             ;;
         "sdk")
             do_sdk
