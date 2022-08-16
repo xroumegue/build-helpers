@@ -170,6 +170,7 @@ EXTRA_IMAGE_FEATURES += "\
   nfs-client \
   ssh-server-openssh \
   tools-debug \
+  tools-sdk \
 "
 
 PACKAGECONFIG:append:pn-libcamera = " gst python"
