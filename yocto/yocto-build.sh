@@ -200,6 +200,10 @@ IMAGE_INSTALL:append = " mount-dev "
 PACKAGECONFIG:remove:pn-openssh = "rng-tools"
 MACHINE_EXTRA_RRECOMMENDS += "ssh-pregen-hostkeys"
 
+PREFERRED_PROVIDER_base-utils = "packagegroup-core-base-utils"
+VIRTUAL-RUNTIME_base-utils = "packagegroup-core-base-utils"
+VIRTUAL-RUNTIME_base-utils-hwclock = "util-linux-hwclock"
+
 EOF
     fi
 
