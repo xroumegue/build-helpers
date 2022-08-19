@@ -101,7 +101,7 @@ function do_config {
         -Ddocumentation=disabled \
         -Dpycamera=enabled \
         -Dtest=false \
-        -Ddebug=true \
+        --buildtype=debug \
         build
 }
 
