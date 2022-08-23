@@ -8,10 +8,16 @@ export sysroot_host_default
 export cross_compilation_conf_default
 export cross_compile_default
 export tftpdir_default
+export sstatedir_default
+export sstatemirror_default
+export downloaddir_default
 
 installdir_default=/srv/nfs/yocto
 tftpdir_default=/srv/tftp/yocto
 sdkdir_default=/opt/sdk/yocto
+sstatedir_default=
+sstatemirror_default=
+downloaddir_default=
 yocto_version_default=4.1
 sysroot_target_default=${sdkdir_default}/${yocto_version_default}/sysroots/armv8a-poky-linux/
 sysroot_host_default=${sdkdir_default}/${yocto_version_default}/sysroots/x86_64-pokysdk-linux

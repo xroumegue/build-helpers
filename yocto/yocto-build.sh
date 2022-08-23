@@ -23,6 +23,13 @@ cat << EOF
             Working directory
         --update, -u
             Update the git repositories
+        --downloaddir, -D
+            Yocto Download directory
+        --sstatedir, -S
+            Yocto dstatedir directory
+        --sstatemirror, -M
+            Yocto dstatedir directory
+
 
     Possible commands:
         setup
@@ -33,8 +40,8 @@ cat << EOF
 EOF
 }
 
-opts_short=vhui:b:s:n:w:
-opts_long=verbose,help,update,image:,builddir:,sdkdir:,installdir:,workdir:
+opts_short=vhui:b:s:n:w:S:D:M
+opts_long=verbose,help,update,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:
 
 options=$(getopt -o ${opts_short} -l ${opts_long} -- "$@" )
 
@@ -62,9 +69,21 @@ while true; do
             shift
             builddir=$1
             ;;
+        --downloaddir | -D)
+            shift
+            downloaddir=$1
+            ;;
         --sdkdir | -s)
             shift
             sdkdir=$1
+            ;;
+        --sstatedir | -S)
+            shift
+            sstatedir=$1
+            ;;
+        --sstatemirror | -M)
+            shift
+            sstatemirror=$1
             ;;
         --installdir | -n)
             shift
@@ -72,7 +91,7 @@ while true; do
             ;;
         --workdir | w)
             shift
-			workdir=$(realpath "$1")
+            workdir=$(realpath "$1")
             ;;
         --update | u)
             update=true
@@ -98,6 +117,15 @@ update=${update:-false}
 installdir=${installdir:-${installdir_default}}
 sdkdir=${sdkdir:-${sdkdir_default}}
 workdir=${workdir:-$(pwd)}
+#dependency on workdir
+sstatedir_default=${sstatedir_default:-${workdir}/sstate-cache}
+sstatedir=${sstatedir:-${sstatedir_default}}
+
+sstatemirror_default=${sstatemirror_default:-}
+sstatemirror=${sstatemirror:-${sstatemirror_default}}
+
+downloaddir_default=${downloaddir_default:-${workdir}/downloads}
+downloaddir=${downloaddir:-${downloaddir_default}}
 
 function add_repo {
     local git_repository
@@ -163,8 +191,8 @@ function do_setup {
     cat <<EOF >> conf/local.conf
 # Customization
 MACHINE = "${machine}"
-DL_DIR = "${workdir}/downloads"
-SSTATE_DIR = "${workdir}/sstate-cache"
+DL_DIR = "${downloaddir}"
+SSTATE_DIR = "${sstatedir}"
 EXTRA_IMAGE_FEATURES += "\
   debug-tweaks \
   nfs-client \
@@ -209,6 +237,11 @@ VIRTUAL-RUNTIME_base-utils = "packagegroup-core-base-utils"
 VIRTUAL-RUNTIME_base-utils-hwclock = "util-linux-hwclock"
 
 EOF
+        if [ -n "${sstatemirror}" ];then
+            cat <<EOF >> conf/local.conf
+SSTATE_MIRRORS = "file://.* file://${sstatemirror}/PATH"
+EOF
+        fi
     fi
 
 }
