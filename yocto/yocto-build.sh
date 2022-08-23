@@ -15,6 +15,9 @@ cat << EOF
             Image name to build
         --builddir, -b
             build directory name, default to build-\$image
+        --force, -f
+            Force local.conf customization
+        --image, -i
         --sdkdir, -s
             Yocto SDK directory
         --installdir, -n
@@ -40,8 +43,8 @@ cat << EOF
 EOF
 }
 
-opts_short=vhui:b:s:n:w:S:D:M
-opts_long=verbose,help,update,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:
+opts_short=vhufi:b:s:n:w:S:D:M
+opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:
 
 options=$(getopt -o ${opts_short} -l ${opts_long} -- "$@" )
 
@@ -72,6 +75,9 @@ while true; do
         --downloaddir | -D)
             shift
             downloaddir=$1
+            ;;
+        --force | -f)
+            force=true
             ;;
         --sdkdir | -s)
             shift
@@ -113,6 +119,7 @@ image=${image:-core-image-base}
 machine=${machine:-generic-arm64}
 builddir=${builddir:-build-"${image}"}
 verbose=${verbose:-false}
+force=${force:-false}
 update=${update:-false}
 installdir=${installdir:-${installdir_default}}
 sdkdir=${sdkdir:-${sdkdir_default}}
@@ -185,6 +192,11 @@ function do_setup {
     add_layer "${workdir}"/meta-openembedded/meta-python
     add_layer "${workdir}"/meta-openembedded/meta-multimedia
     add_layer "${workdir}"/meta-staging
+
+    if [ -n "${force}" ] && $force;
+    then
+        sed -i -e '/# Customization/,$d' conf/local.conf
+    fi
 
     if [ "$(grep -c -E "# Customization" conf/local.conf)" -eq 0 ]
     then
