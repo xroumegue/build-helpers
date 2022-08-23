@@ -176,6 +176,9 @@ EXTRA_IMAGE_FEATURES += "\
 PACKAGECONFIG:append:pn-libcamera = " gst python"
 
 IMAGE_INSTALL:append = "\
+     gstreamer1.0-plugins-good \
+     gstreamer1.0-plugins-bad \
+     gstreamer1.0-plugins-base \
      libcamera \
      libcamera-gst \
      libcamera-python \
