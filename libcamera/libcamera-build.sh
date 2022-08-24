@@ -3,8 +3,6 @@
 set -e
 
 rootdir=$(realpath "$(dirname "$(realpath "$0")")/..")
-# shellcheck disable=SC1091
-. "${rootdir}"/common/utils.sh
 
 function usage {
 cat << EOF
@@ -22,8 +20,8 @@ cat << EOF
 EOF
 }
 
-opts_short=hvc:s:n:
-opts_long=help,verbose,cross_compilation_conf:,sysrootdir:,installdir:
+opts_short=hvc:s:n:b:
+opts_long=help,verbose,cross_compilation_conf:,sysrootdir:,installdir:,buildenv:
 options=$(getopt -o ${opts_short} -l ${opts_long} -- "$@" )
 
 # shellcheck disable=SC2181
@@ -47,6 +45,10 @@ while true; do
             shift
             installdir=$1
             ;;
+        --buildenv | -b)
+            shift
+            buildenv=$1
+            ;;
         --sysrootdir | -s)
             shift
             sysrootdir=$1
@@ -66,6 +68,11 @@ done
 
 declare -a commands
 commands+=("${@:-all}")
+buildenv=${buildenv:-default}
+export buildenv
+
+# shellcheck disable=SC1091
+. "${rootdir}"/common/utils.sh
 
 export verbose
 verbose=${verbose:-false}
