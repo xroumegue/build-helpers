@@ -34,6 +34,13 @@ function get_default {
 
     # shellcheck disable=SC1090
     . "${envfile}"
+
+    envfile_host="${rootdir}"/etc/env-"$(hostname)".sh
+    if [ -e "${envfile_host}" ];
+    then
+    # shellcheck disable=SC1090
+        . "${envfile_host}"
+    fi
 }
 
 get_default
