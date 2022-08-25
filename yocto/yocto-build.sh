@@ -205,25 +205,26 @@ function do_setup {
 MACHINE = "${machine}"
 DL_DIR = "${downloaddir}"
 SSTATE_DIR = "${sstatedir}"
-EXTRA_IMAGE_FEATURES += "\
-  debug-tweaks \
-  nfs-client \
-  ssh-server-openssh \
-  tools-debug \
-  tools-sdk \
+EXTRA_IMAGE_FEATURES += "\\
+  debug-tweaks \\
+  nfs-client \\
+  ssh-server-openssh \\
+  tools-debug \\
+  tools-sdk \\
 "
 
 PACKAGECONFIG:append:pn-libcamera = " gst python"
 
-IMAGE_INSTALL:append = "\
-     gstreamer1.0-plugins-good \
-     gstreamer1.0-plugins-bad \
-     gstreamer1.0-plugins-base \
-     libcamera \
-     libcamera-gst \
-     libcamera-python \
-     v4l-utils \
-     yavta \
+IMAGE_INSTALL:append = "\\
+     gstreamer1.0-plugins-good \\
+     gstreamer1.0-plugins-bad \\
+     gstreamer1.0-plugins-base \\
+     libcamera \\
+     libcamera-gst \\
+     libcamera-python \\
+     libdrm \\
+     v4l-utils \\
+     yavta \\
 "
 
 DISTRO_FEATURES += " systemd"
