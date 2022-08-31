@@ -202,6 +202,7 @@ function do_setup {
     then
     cat <<EOF >> conf/local.conf
 # Customization
+BB_NICE_LEVEL = "10"
 MACHINE = "${machine}"
 DL_DIR = "${downloaddir}"
 SSTATE_DIR = "${sstatedir}"
