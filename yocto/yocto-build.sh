@@ -43,8 +43,8 @@ cat << EOF
 EOF
 }
 
-opts_short=vhufi:b:s:n:w:S:D:M
-opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:
+opts_short=vhufi:b:s:n:w:S:D:M:H:P:
+opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:,hashserver:,prserver:
 
 options=$(getopt -o ${opts_short} -l ${opts_long} -- "$@" )
 
@@ -78,6 +78,14 @@ while true; do
             ;;
         --force | -f)
             force=true
+            ;;
+        --hashserver | -H)
+            shift
+            hashserver=$1
+            ;;
+        --prserver | -P)
+            shift
+            prserver=$1
             ;;
         --sdkdir | -s)
             shift
@@ -130,6 +138,12 @@ sstatedir=${sstatedir:-${sstatedir_default}}
 
 sstatemirror_default=${sstatemirror_default:-}
 sstatemirror=${sstatemirror:-${sstatemirror_default}}
+
+hashserver_default=${hashserver_default:-}
+hashserver=${hashserver:-${hashserver_default}}
+
+prserver_default=${prserver_default:-}
+prserver=${prserver:-${prserver_default}}
 
 downloaddir_default=${downloaddir_default:-${workdir}/downloads}
 downloaddir=${downloaddir:-${downloaddir_default}}
@@ -256,8 +270,17 @@ EOF
 SSTATE_MIRRORS = "file://.* file://${sstatemirror}/PATH"
 EOF
         fi
+        if [ -n "${hashserver}" ];then
+            cat <<EOF >> conf/local.conf
+BB_HASHSERVE= "${hashserver}"
+EOF
+        fi
+        if [ -n "${prserver}" ];then
+            cat <<EOF >> conf/local.conf
+PRSERV_HOST= "${prserver}"
+EOF
+        fi
     fi
-
 }
 
 function do_build {
