@@ -240,6 +240,7 @@ IMAGE_INSTALL:append = "\\
      libdrm \\
      v4l-utils \\
      yavta \\
+     opencv \\
 "
 
 DISTRO_FEATURES += " systemd"
