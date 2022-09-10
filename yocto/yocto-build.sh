@@ -248,9 +248,7 @@ VIRTUAL-RUNTIME_init_manager = "systemd"
 DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 IMAGE_FSTYPES = "tar.bz2"
 
-# Set generic-arm64 to compatible machine in linux-yocto-dev.bb
-#PREFERRED_PROVIDER_virtual/kernel = "linux-yocto-dev"
-#PREFERRED_PROVIDER_virtual/kernel = "linux-dummy"
+PREFERRED_PROVIDER_virtual/kernel = "linux-imx"
 SERIAL_CONSOLES = "115200;ttymxc1"
 
 # Use by mount-dev to get the nfs server ip address
