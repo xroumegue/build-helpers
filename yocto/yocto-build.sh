@@ -249,6 +249,8 @@ DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 IMAGE_FSTYPES = "tar.bz2"
 
 PREFERRED_PROVIDER_virtual/kernel = "linux-imx"
+TOOLCHAIN_TARGET_TASK:append = " kernel-headers"
+
 SERIAL_CONSOLES = "115200;ttymxc1"
 
 # Use by mount-dev to get the nfs server ip address
