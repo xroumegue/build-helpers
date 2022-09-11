@@ -257,6 +257,9 @@ VIRTUAL-RUNTIME_init_manager = "systemd"
 DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 IMAGE_FSTYPES = "tar.bz2"
 
+DISTRO_FEATURES:append = " opengl wayland pam"
+CORE_IMAGE_EXTRA_INSTALL += " wayland weston"
+
 PREFERRED_PROVIDER_virtual/kernel = "linux-imx"
 TOOLCHAIN_TARGET_TASK:append = " kernel-headers"
 
