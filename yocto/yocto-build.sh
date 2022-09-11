@@ -28,6 +28,8 @@ cat << EOF
             Update the git repositories
         --downloaddir, -D
             Yocto Download directory
+        --downloadmirror, -m
+            Yocto Download mirror
         --sstatedir, -S
             Yocto dstatedir directory
         --sstatemirror, -M
@@ -43,8 +45,8 @@ cat << EOF
 EOF
 }
 
-opts_short=vhufi:b:s:n:w:S:D:M:H:P:
-opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:,hashserver:,prserver:
+opts_short=vhufi:b:s:n:w:S:D:M:H:P:m:
+opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:,hashserver:,prserver:,downloadmirror:
 
 options=$(getopt -o ${opts_short} -l ${opts_long} -- "$@" )
 
@@ -75,6 +77,10 @@ while true; do
         --downloaddir | -D)
             shift
             downloaddir=$1
+            ;;
+        --downloadmirror | -m)
+            shift
+            downloadmirror=$1
             ;;
         --force | -f)
             force=true
@@ -147,6 +153,9 @@ prserver=${prserver:-${prserver_default}}
 
 downloaddir_default=${downloaddir_default:-${workdir}/downloads}
 downloaddir=${downloaddir:-${downloaddir_default}}
+
+downloadmirror_default=${downloadmirror_default:-}
+downloadmirror=${downloadmirror:-${downloadmirror_default}}
 
 function add_repo {
     local git_repository
@@ -269,6 +278,15 @@ EOF
         if [ -n "${sstatemirror}" ];then
             cat <<EOF >> conf/local.conf
 SSTATE_MIRRORS = "file://.* file://${sstatemirror}/PATH"
+EOF
+        fi
+        if [ -n "${downloadmirror}" ];then
+            cat <<EOF >> conf/local.conf
+PREMIRRORS:prepend = "\\
+    git://.*/.* file://${downloadmirror}/ \\
+    ftp://.*/.* file://${downloadmirror}/ \\
+    http://.*/.* file://${downloadmirror}/ \\
+    https://.*/.* file://${downloadmirror}/"
 EOF
         fi
         if [ -n "${hashserver}" ];then
