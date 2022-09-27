@@ -235,7 +235,10 @@ EXTRA_IMAGE_FEATURES += "\\
   ssh-server-openssh \\
   tools-debug \\
   tools-sdk \\
+  package-management \\
 "
+
+PACKAGE_CLASSES = "package_rpm"
 
 PACKAGECONFIG:append:pn-libcamera = " gst python"
 
