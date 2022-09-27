@@ -250,6 +250,9 @@ IMAGE_INSTALL:append = "\\
      v4l-utils \\
      yavta \\
      opencv \\
+     libgpiod-tools \\
+     i2c-tools \\
+     i2c-tools-misc \\
 "
 
 DISTRO_FEATURES += " systemd"
