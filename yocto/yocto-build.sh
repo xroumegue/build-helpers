@@ -11,6 +11,8 @@ cat << EOF
             This help message
         --verbose, -v
             Show some verbose logs
+        --configuration, -c
+            Yocto configuration (master, nxp)
         --image, -i
             Image name to build
         --builddir, -b
@@ -45,8 +47,8 @@ cat << EOF
 EOF
 }
 
-opts_short=vhufi:b:s:n:w:S:D:M:H:P:m:
-opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:,hashserver:,prserver:,downloadmirror:
+opts_short=vhufi:b:s:n:w:S:D:M:H:P:m:c:
+opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:,hashserver:,prserver:,downloadmirror:,configuration:
 
 options=$(getopt -o ${opts_short} -l ${opts_long} -- "$@" )
 
@@ -69,6 +71,10 @@ while true; do
         --image | -i)
             shift
             image=$1
+            ;;
+        --configuration | -c)
+            shift
+            configuration=$1
             ;;
         --builddir | -b)
             shift
@@ -131,6 +137,7 @@ commands+=("${@:-all}")
 
 image=${image:-core-image-base}
 machine=${machine:-generic-arm64}
+configuration=${configuration:-master}
 builddir=${builddir:-build-"${image}"}
 verbose=${verbose:-false}
 force=${force:-false}
@@ -191,7 +198,61 @@ function add_layer {
     fi
 }
 
-function do_enter_env {
+function do_common_setup {
+    cat <<EOF >> conf/local.conf
+################################################################################
+# Customization
+################################################################################
+
+BB_NICE_LEVEL = "10"
+MACHINE = "${machine}"
+
+EOF
+
+    if [ -n "${downloaddir}" ];then
+        cat <<EOF >> conf/local.conf
+DL_DIR = "${downloaddir}"
+EOF
+    fi
+
+    if [ -n "${sstatedir}" ];then
+        cat <<EOF >> conf/local.conf
+SSTATE_DIR = "${sstatedir}"
+EOF
+    fi
+
+    if [ -n "${sstatemirror}" ];then
+        cat <<EOF >> conf/local.conf
+SSTATE_MIRRORS = "file://.* file://${sstatemirror}/PATH"
+EOF
+    fi
+    if [ -n "${downloadmirror}" ];then
+        cat <<EOF >> conf/local.conf
+PREMIRRORS:prepend = "\\
+    git://.*/.* file://${downloadmirror}/ \\
+    ftp://.*/.* file://${downloadmirror}/ \\
+    http://.*/.* file://${downloadmirror}/ \\
+    https://.*/.* file://${downloadmirror}/"
+
+EOF
+    fi
+    if [ -n "${hashserver}" ];then
+        cat <<EOF >> conf/local.conf
+BB_HASHSERVE= "${hashserver}"
+EOF
+    fi
+    if [ -n "${prserver}" ];then
+        cat <<EOF >> conf/local.conf
+PRSERV_HOST= "${prserver}"
+EOF
+    fi
+}
+
+#
+# MASTER
+#
+
+function do_enter_env_master {
     if [ -z "$OEROOT" ];
     then
         # shellcheck disable=SC1091
@@ -199,8 +260,7 @@ function do_enter_env {
     fi
 }
 
-function do_setup {
-    log "Setup environment"
+function do_setup_master {
     add_repo git://git.yoctoproject.org/poky master
     add_repo git://git.yoctoproject.org/meta-arm master
     add_repo git://git.openembedded.org/meta-openembedded master
@@ -216,19 +276,11 @@ function do_setup {
     add_layer "${workdir}"/meta-openembedded/meta-multimedia
     add_layer "${workdir}"/meta-staging
 
-    if [ -n "${force}" ] && $force;
-    then
-        sed -i -e '/# Customization/,$d' conf/local.conf
-    fi
+}
 
-    if [ "$(grep -c -E "# Customization" conf/local.conf)" -eq 0 ]
-    then
+function do_custom_conf_master {
     cat <<EOF >> conf/local.conf
-# Customization
-BB_NICE_LEVEL = "10"
-MACHINE = "${machine}"
-DL_DIR = "${downloaddir}"
-SSTATE_DIR = "${sstatedir}"
+
 EXTRA_IMAGE_FEATURES += "\\
   debug-tweaks \\
   nfs-client \\
@@ -284,37 +336,67 @@ VIRTUAL-RUNTIME_base-utils = "packagegroup-core-base-utils"
 VIRTUAL-RUNTIME_base-utils-hwclock = "util-linux-hwclock"
 
 EOF
-        if [ -n "${sstatemirror}" ];then
-            cat <<EOF >> conf/local.conf
-SSTATE_MIRRORS = "file://.* file://${sstatemirror}/PATH"
-EOF
-        fi
-        if [ -n "${downloadmirror}" ];then
-            cat <<EOF >> conf/local.conf
-PREMIRRORS:prepend = "\\
-    git://.*/.* file://${downloadmirror}/ \\
-    ftp://.*/.* file://${downloadmirror}/ \\
-    http://.*/.* file://${downloadmirror}/ \\
-    https://.*/.* file://${downloadmirror}/"
-EOF
-        fi
-        if [ -n "${hashserver}" ];then
-            cat <<EOF >> conf/local.conf
-BB_HASHSERVE= "${hashserver}"
-EOF
-        fi
-        if [ -n "${prserver}" ];then
-            cat <<EOF >> conf/local.conf
-PRSERV_HOST= "${prserver}"
-EOF
-        fi
+}
+
+#
+# NXP BSP
+#
+
+function do_build_nxp {
+    true
+}
+
+
+declare -A setup_funcs=(
+    [master]=do_setup_master
+)
+
+declare -A enter_env_funcs=(
+    [master]=do_enter_env_master
+)
+
+declare -A custom_conf_funcs=(
+    [master]=do_custom_conf_master
+)
+
+declare -A build_funcs=(
+    [nxp]=do_build_nxp
+)
+
+function do_enter_env {
+    "${enter_env_funcs[${configuration}]}"
+}
+
+function do_custom_conf {
+    "${custom_conf_funcs[${configuration}]}"
+}
+
+function do_setup {
+    log "Setup environment"
+    "${setup_funcs[${configuration}]}"
+
+    if [ -n "${force}" ] && $force;
+    then
+        sed -i -e '/# Customization/,$d' conf/local.conf
+    fi
+
+    if [ "$(grep -c -E "# Customization" conf/local.conf)" -eq 0 ]
+    then
+        do_common_setup
+        do_custom_conf
     fi
 }
 
 function do_build {
     log "Building image ${image}"
     do_enter_env
-    bitbake "${image}"
+    if [[ -v build_funcs[${configuration}] ]];
+    then
+        log "Calling customized build function"
+        ${build_funcs[${configuration}]}
+    else
+        bitbake "${image}"
+    fi
 }
 
 function do_deploy {
