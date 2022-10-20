@@ -293,6 +293,7 @@ EXTRA_IMAGE_FEATURES += "\\
 PACKAGE_CLASSES = "package_rpm"
 
 PACKAGECONFIG:append:pn-libcamera = " gst python"
+PACKAGECONFIG:append:pn-gstreamer1.0-plugins-bad = " kms"
 
 IMAGE_INSTALL:append = "\\
      gstreamer1.0-plugins-good \\
