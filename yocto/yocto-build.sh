@@ -303,6 +303,8 @@ IMAGE_INSTALL:append = "\\
      libcamera-gst \\
      libcamera-python \\
      libdrm \\
+     libdrm-drivers \\
+     libdrm-tests \\
      v4l-utils \\
      yavta \\
      opencv \\
