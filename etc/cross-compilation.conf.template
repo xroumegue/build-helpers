@@ -4,7 +4,8 @@
 sdk_dir = '$sdkdir_default'
 sysroot_host_default = '$sysroot_host_default'
 sysroot_dir = '$sysroot_target_default'
-tools_dir= sysroot_host_default + '/usr/bin/aarch64-poky-linux/'
+tools_dir = sysroot_host_default + '/usr/bin/aarch64-poky-linux/'
+kernel_dir = sysroot_dir + '/usr/src/kernels/include'
 
 [binaries]
 c = tools_dir + 'aarch64-poky-linux-gcc'
@@ -16,10 +17,10 @@ g-ir-compiler = tools_dir + '/usr/bin/g-ir-compiler'
 g-ir-scanner = tools_dir + '/usr/bin/g-ir-scanner'
 
 [built-in options]
-c_args = ['-mcpu=cortex-a53', '-march=armv8-a+crc+crypto', '-fstack-protector-strong', '-O2', '-D_FORTIFY_SOURCE=0', '-Wformat', '-Wformat-security', '-Werror=format-security', '--sysroot=' + sysroot_dir, '-Isrc/kernels/include']
+c_args = ['-mcpu=cortex-a53', '-march=armv8-a+crc+crypto', '-fstack-protector-strong', '-O2', '-D_FORTIFY_SOURCE=0', '-Wformat', '-Wformat-security', '-Werror=format-security', '--sysroot=' + sysroot_dir, '-I'+kernel_dir]
 
 c_link_args = '--sysroot=' + sysroot_dir
-cpp_args = [ '-mcpu=cortex-a53', '-march=armv8-a+crc+crypto', '-fstack-protector-strong', '-O2', '-D_FORTIFY_SOURCE=0', '-Wformat', '-Wformat-security', '-Werror=format-security', '--sysroot=' + sysroot_dir, '-Isrc/kernels/include']
+cpp_args = [ '-mcpu=cortex-a53', '-march=armv8-a+crc+crypto', '-fstack-protector-strong', '-O2', '-D_FORTIFY_SOURCE=0', '-Wformat', '-Wformat-security', '-Werror=format-security', '--sysroot=' + sysroot_dir, '-I'+kernel_dir]
 
 cpp_link_args = '--sysroot=' + sysroot_dir
 
