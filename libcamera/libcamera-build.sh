@@ -105,7 +105,7 @@ function do_config {
         -Dipas=rkisp1 \
         -Dpipelines=rkisp1,simple \
         -Dcam=enabled \
-        -Ddocumentation=disabled \
+        -Ddocumentation=enabled \
         -Dpycamera=enabled \
         -Dtest=false \
         --buildtype=debug \
