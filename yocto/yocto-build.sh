@@ -296,6 +296,7 @@ PACKAGECONFIG:append:pn-libcamera = " gst python"
 PACKAGECONFIG:append:pn-gstreamer1.0-plugins-bad = " kms"
 
 IMAGE_INSTALL:append = "\\
+     cmake \\
      gstreamer1.0-plugins-good \\
      gstreamer1.0-plugins-bad \\
      gstreamer1.0-plugins-base \\
@@ -305,6 +306,9 @@ IMAGE_INSTALL:append = "\\
      libdrm \\
      libdrm-drivers \\
      libdrm-tests \\
+     python3-pip \\
+     python3-setuptools \\
+     python3-venv \\
      v4l-utils \\
      yavta \\
      opencv \\
