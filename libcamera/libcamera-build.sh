@@ -103,7 +103,7 @@ function do_config {
         --prefix /usr \
         --wrap-mode=default \
         -Dipas=rkisp1 \
-        -Dpipelines=rkisp1,simple \
+        -Dpipelines=imx8-isi,rkisp1,simple \
         -Dcam=enabled \
         -Ddocumentation=enabled \
         -Dpycamera=enabled \
