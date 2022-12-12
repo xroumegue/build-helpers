@@ -1,8 +1,6 @@
 #! /usr/bin/env bash
 
 rootdir=$(dirname "$(realpath "$0")")/..
-# shellcheck disable=SC1091
-. "${rootdir}"/common/utils.sh
 
 function usage {
 cat << EOF
@@ -11,32 +9,39 @@ cat << EOF
             This help message
         --verbose, -v
             Show some verbose logs
-        --configuration, -c
+        --configuration
             Yocto configuration (master, nxp)
-        --image, -i
+        --image
             Image name to build
-        --builddir, -b
+        --branch
+            manifest branch to build
+        --distro
+            Distribution to build
+        --manifest
+            manifest to build
+        --builddir
             build directory name, default to build-\$image
-        --force, -f
+        --force
             Force local.conf customization
-        --image, -i
-        --sdkdir, -s
+        --image
+        --sdkdir
             Yocto SDK directory
-        --installdir, -n
+        --installdir
             NFS directory
-        --workdir, -w
+        --workdir
             Working directory
-        --update, -u
+        --update
             Update the git repositories
-        --downloaddir, -D
+        --urlmanifest
+            URL of manifest repository
+        --downloaddir
             Yocto Download directory
-        --downloadmirror, -m
+        --downloadmirror
             Yocto Download mirror
-        --sstatedir, -S
+        --sstatedir
             Yocto dstatedir directory
-        --sstatemirror, -M
+        --sstatemirror
             Yocto dstatedir directory
-
 
     Possible commands:
         setup
@@ -47,8 +52,8 @@ cat << EOF
 EOF
 }
 
-opts_short=vhufi:b:s:n:w:S:D:M:H:P:m:c:
-opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:,hashserver:,prserver:,downloadmirror:,configuration:
+opts_short=vh
+opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:,hashserver:,prserver:,downloadmirror:,configuration:,branch:,manifest:,urlmanifest:,machine:,distro:,buildenv:
 
 options=$(getopt -o ${opts_short} -l ${opts_long} -- "$@" )
 
@@ -68,59 +73,80 @@ while true; do
             usage
             exit 0
             ;;
-        --image | -i)
+        --image)
             shift
             image=$1
             ;;
-        --configuration | -c)
+        --branch)
+            shift
+            branch=$1
+            ;;
+        --configuration)
             shift
             configuration=$1
             ;;
-        --builddir | -b)
+        --builddir)
             shift
             builddir=$1
             ;;
-        --downloaddir | -D)
+        --buildenv)
+            shift
+            # shellcheck disable=SC2034
+            buildenv=default-$1
+            ;;
+        --downloaddir)
             shift
             downloaddir=$1
             ;;
-        --downloadmirror | -m)
+        --downloadmirror)
             shift
             downloadmirror=$1
             ;;
-        --force | -f)
+        --force)
             force=true
             ;;
-        --hashserver | -H)
+        --hashserver)
             shift
             hashserver=$1
             ;;
-        --prserver | -P)
+        --machine)
+            shift
+            machine=$1
+            ;;
+        --distro)
+            shift
+            distro=$1
+            ;;
+        --prserver)
             shift
             prserver=$1
             ;;
-        --sdkdir | -s)
+        --sdkdir)
             shift
             sdkdir=$1
             ;;
-        --sstatedir | -S)
+        --sstatedir)
             shift
             sstatedir=$1
             ;;
-        --sstatemirror | -M)
+        --sstatemirror)
             shift
             sstatemirror=$1
             ;;
-        --installdir | -n)
+        --installdir)
             shift
             installdir=$1
             ;;
-        --workdir | w)
+        --workdir)
             shift
             workdir=$(realpath "$1")
             ;;
-        --update | u)
+        --update)
             update=true
+            ;;
+        --url)
+            shift
+            urlmanifest=$1
             ;;
         --)
             shift
@@ -135,13 +161,36 @@ done
 declare -a commands
 commands+=("${@:-all}")
 
+buildenv=${buildenv:-default}
+
+# shellcheck disable=SC1091
+. "${rootdir}"/common/utils.sh
+
 image=${image:-core-image-base}
-machine=${machine:-generic-arm64}
-configuration=${configuration:-master}
+
+machine_default=${machine_default:-generic-arm64}
+machine=${machine:-${machine_default}}
+
+distro_default=${distro_default:-poky}
+distro=${distro:-${distro_default}}
+
+configuration_default=${configuration_default:-master}
+configuration=${configuration:-${configuration_default}}
+
 builddir=${builddir:-build-"${image}"}
+
+
+branch_default=${branch_default:-}
+branch=${branch:-${branch_default}}
+
+manifest=${manifest:-default}
 verbose=${verbose:-false}
 force=${force:-false}
 update=${update:-false}
+
+urlmanifest_default=${urlmanifest_default:-}
+urlmanifest=${urlmanifest:-${urlmanifest_default}}
+
 installdir=${installdir:-${installdir_default}}
 sdkdir=${sdkdir:-${sdkdir_default}}
 workdir=${workdir:-$(pwd)}
@@ -200,12 +249,11 @@ function add_layer {
 
 function do_common_setup {
     cat <<EOF >> conf/local.conf
-################################################################################
 # Customization
-################################################################################
 
 BB_NICE_LEVEL = "10"
 MACHINE = "${machine}"
+DISTRO = "${distro}"
 
 EOF
 
@@ -276,6 +324,16 @@ function do_setup_master {
     add_layer "${workdir}"/meta-openembedded/meta-multimedia
     add_layer "${workdir}"/meta-staging
 
+    if [ -n "${force}" ] && $force;
+    then
+        sed -i -e '/# Customization/,$d' conf/local.conf
+    fi
+
+    if [ "$(grep -c -E "# Customization" conf/local.conf)" -eq 0 ]
+    then
+        do_common_setup
+        do_custom_conf
+    fi
 }
 
 function do_custom_conf_master {
@@ -348,18 +406,63 @@ EOF
 #
 # NXP BSP
 #
+#
+
+function do_setup_nxp {
+    repo init -u "${urlmanifest}" -b "${branch}" -m "${manifest}".xml
+
+    if "${update}" || ! [ -d sources ] ;
+    then
+        repo sync "-j$(nproc)"
+    fi
+    if [ ! -d "${builddir}" ] || "$force" ;
+    then
+        # shellcheck disable=SC1091
+        # machine variable is overriden in fsl-setup-internal-build
+        # with garbage content
+        _machine=$machine
+        EULA=1 MACHINE=$machine DISTRO=$distro \
+            . fsl-setup-internal-build.sh -b "${builddir}"
+        machine=$_machine
+    else
+        do_enter_env
+    fi
+
+    if [ -n "${force}" ] && $force;
+    then
+        sed -i -e '/# Customization/,$d' conf/local.conf
+    fi
+
+    if [ "$(grep -c -E "# Customization" conf/local.conf)" -eq 0 ]
+    then
+        do_common_setup
+    fi
+}
 
 function do_build_nxp {
     true
 }
 
+function do_enter_env_nxp {
+    if [ -z "$OEROOT" ];
+    then
+        # shellcheck disable=SC1091
+        . setup-environment "${builddir}"
+    fi
+}
+
+function do_custom_conf_nxp {
+    true
+}
 
 declare -A setup_funcs=(
     [master]=do_setup_master
+    [nxp]=do_setup_nxp
 )
 
 declare -A enter_env_funcs=(
     [master]=do_enter_env_master
+    [nxp]=do_enter_env_nxp
 )
 
 declare -A custom_conf_funcs=(
@@ -367,7 +470,6 @@ declare -A custom_conf_funcs=(
 )
 
 declare -A build_funcs=(
-    [nxp]=do_build_nxp
 )
 
 function do_enter_env {
@@ -382,16 +484,6 @@ function do_setup {
     log "Setup environment"
     "${setup_funcs[${configuration}]}"
 
-    if [ -n "${force}" ] && $force;
-    then
-        sed -i -e '/# Customization/,$d' conf/local.conf
-    fi
-
-    if [ "$(grep -c -E "# Customization" conf/local.conf)" -eq 0 ]
-    then
-        do_common_setup
-        do_custom_conf
-    fi
 }
 
 function do_build {
@@ -408,10 +500,11 @@ function do_build {
 
 function do_deploy {
     log "Deploying ${image}"
-    rootfsimage=$(find "${builddir}/tmp/deploy/images" -regextype posix-extended -regex ".*/${image}-${machine}\.tar\.bz2")
+    rootfsimage=$(find "${builddir}/tmp/deploy/images" -regextype posix-extended -regex ".*/${image}-${machine}\.tar\.(bz2|zst)")
     [ -e "${rootfsimage}" ] || fatal "root fs image not found"
-    log "Deploying rootfsimage $rootfsimage to ${installdir}"
-    sudo --preserve-env bash -c "rm -Rf ${installdir}; mkdir -p ${installdir}; tar -C ${installdir} -xjf ${rootfsimage};"
+    fstype=${rootfsimage##*.}
+    log "Deploying rootfsimage $rootfsimage (${fstype}) to ${installdir}"
+    sudo --preserve-env bash -c "rm -Rf ${installdir}; mkdir -p ${installdir}; tar -C ${installdir}  --auto-compress -xf ${rootfsimage};"
 }
 
 function do_sdk {
@@ -423,14 +516,16 @@ function do_sdk {
 function do_deploy_sdk {
     log "Deploying SDK"
 
-    sdkimage=$(find "${builddir}/tmp/deploy/sdk" -regextype posix-extended -regex ".*/poky-glibc-x86_64-${image}-armv8a-${machine}-toolchain-([0-9]\.[0-9]).*\.sh")
+    sdkimage=$(find "${builddir}/tmp/deploy/sdk" -regextype posix-extended -regex ".*/.*-glibc-x86_64-${image}-armv8a-${machine}-toolchain-(.*)\.sh")
     [ -e "${sdkimage}" ] || fatal "sdk image not found"
     echo "Find sdimage $sdkimage"
 
-    [[ "$sdkimage" =~ poky-glibc-x86_64-${image}-armv8a-${machine}-toolchain-([0-9]\.[0-9]).*\.sh ]]
+    [[ "$sdkimage" =~ .*-glibc-x86_64-${image}-armv8a-${machine}-toolchain-(.*)\.sh ]]
     [ ${#BASH_REMATCH[@]} -eq 2 ] || fatal "Invalid sdkimage!"
     sdkversion=${BASH_REMATCH[1]}
-    echo "$sdkversion"
+
+    log "Sdk ${sdkversion} image found: $sdkimage"
+
     sudo rm -Rf "${sdkdir}/$sdkversion"
     sudo "${sdkimage}" -y -d "${sdkdir}/$sdkversion"
 }
