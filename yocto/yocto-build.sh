@@ -166,7 +166,8 @@ buildenv=${buildenv:-default}
 # shellcheck disable=SC1091
 . "${rootdir}"/common/utils.sh
 
-image=${image:-core-image-base}
+image_default=${image_default:-core-image-base}
+image=${image:-${image_default}}
 
 machine_default=${machine_default:-generic-arm64}
 machine=${machine:-${machine_default}}
