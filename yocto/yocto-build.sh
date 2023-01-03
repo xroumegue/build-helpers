@@ -184,7 +184,9 @@ builddir=${builddir:-build-"${image}"}
 branch_default=${branch_default:-}
 branch=${branch:-${branch_default}}
 
-manifest=${manifest:-default}
+manifest_default=${manifest_default:-default}
+manifest=${manifest:-${manifest_default}}
+
 verbose=${verbose:-false}
 force=${force:-false}
 update=${update:-false}
