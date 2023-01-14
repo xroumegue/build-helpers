@@ -357,6 +357,7 @@ PACKAGECONFIG:append:pn-libcamera = " gst python"
 PACKAGECONFIG:append:pn-gstreamer1.0-plugins-bad = " kms"
 
 IMAGE_INSTALL:append = "\\
+     perf \\
      cmake \\
      gstreamer1.0-plugins-good \\
      gstreamer1.0-plugins-bad \\
