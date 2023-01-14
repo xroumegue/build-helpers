@@ -374,6 +374,8 @@ IMAGE_INSTALL:append = "\\
      v4l-utils \\
      yavta \\
      opencv \\
+     opencv-dev \\
+     opencv-staticdev \\
      libgpiod-tools \\
      i2c-tools \\
      i2c-tools-misc \\
