@@ -355,6 +355,7 @@ PACKAGE_CLASSES = "package_rpm"
 
 PACKAGECONFIG:append:pn-libcamera = " gst python"
 PACKAGECONFIG:append:pn-gstreamer1.0-plugins-bad = " kms"
+PACKAGECONFIG:remove:pn-perf = " scripting"
 
 IMAGE_INSTALL:append = "\\
      cmake \\
@@ -367,6 +368,7 @@ IMAGE_INSTALL:append = "\\
      libdrm \\
      libdrm-drivers \\
      libdrm-tests \\
+     perf \\
      python3-pip \\
      python3-setuptools \\
      python3-venv \\
