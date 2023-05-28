@@ -304,6 +304,13 @@ EOF
 #
 
 function do_enter_env_master {
+    _gcc=$(realpath "$(which gcc)")
+    if [ ! "${_gcc##*/}" == x86_64-pokysdk-linux-gcc ];then
+        rm -rf poky/buildtools
+        poky/scripts/install-buildtools
+        # shellcheck disable=SC1091
+        . poky/buildtools/environment-setup-x86_64-pokysdk-linux
+    fi
     if [ -z "$OEROOT" ];
     then
         # shellcheck disable=SC1091
