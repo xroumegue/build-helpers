@@ -371,7 +371,6 @@ IMAGE_INSTALL:append = "\\
      gstreamer1.0-plugins-base \\
      libcamera \\
      libcamera-gst \\
-     libcamera-python \\
      libdrm \\
      libdrm-drivers \\
      libdrm-tests \\
