@@ -513,7 +513,7 @@ function do_build {
 
 function do_deploy {
     log "Deploying ${image}"
-    rootfsimage=$(find "${builddir}/tmp/deploy/images" -regextype posix-extended -regex ".*/${image}-${machine}\.tar\.(bz2|zst)")
+    rootfsimage=$(find "${builddir}/tmp/deploy/images" -regextype posix-extended -regex ".*/${image}-${machine}\.rootfs\.tar\.(bz2|zst)")
     [ -e "${rootfsimage}" ] || fatal "root fs image not found"
     fstype=${rootfsimage##*.}
     log "Deploying rootfsimage $rootfsimage (${fstype}) to ${installdir}"
