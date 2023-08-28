@@ -388,7 +388,7 @@ IMAGE_INSTALL:append = "\\
      i2c-tools-misc \\
 "
 
-DISTRO_FEATURES += " systemd"
+DISTRO_FEATURES += " systemd usrmerge"
 VIRTUAL-RUNTIME_init_manager = "systemd"
 DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 IMAGE_FSTYPES = "tar.bz2"
