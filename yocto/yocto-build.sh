@@ -42,6 +42,8 @@ cat << EOF
             Yocto dstatedir directory
         --sstatemirror
             Yocto dstatedir directory
+        --extra_ca_cert
+            Extra CA certificate file
 
     Possible commands:
         setup
@@ -53,7 +55,7 @@ EOF
 }
 
 opts_short=vh
-opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:,hashserver:,prserver:,downloadmirror:,configuration:,branch:,manifest:,urlmanifest:,machine:,distro:,buildenv:
+opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:,hashserver:,prserver:,downloadmirror:,configuration:,branch:,manifest:,urlmanifest:,machine:,distro:,buildenv:,extra_ca_cert:
 
 options=$(getopt -o ${opts_short} -l ${opts_long} -- "$@" )
 
@@ -147,6 +149,10 @@ while true; do
         --url)
             shift
             urlmanifest=$1
+            ;;
+        --extra_ca_cert)
+            shift
+            extra_ca_cert=$1
             ;;
         --)
             shift
@@ -308,6 +314,10 @@ function do_enter_env_master {
     if [ ! "${_gcc##*/}" == x86_64-pokysdk-linux-gcc ];then
         rm -rf poky/buildtools
         poky/scripts/install-buildtools
+        if [[ -n "$extra_ca_cert" ]] && [ -f ${extra_ca_cert} ]; then
+            echo "Appending ${extra_ca_cert} to GIT_SSL_CAINFO file"
+            cat ${extra_ca_cert} >> poky/buildtools/sysroots/x86_64-pokysdk-linux/etc/ssl/certs/ca-certificates.crt
+        fi
         # shellcheck disable=SC1091
         . poky/buildtools/environment-setup-x86_64-pokysdk-linux
     fi
