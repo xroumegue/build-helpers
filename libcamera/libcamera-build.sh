@@ -106,7 +106,7 @@ function do_config {
         -Dpipelines=auto \
         -Dcam=enabled \
         -Ddocumentation=enabled \
-        -Dpycamera=enabled \
+        -Dpycamera=disabled \
         -Dtest=false \
         --buildtype=debug \
         build
