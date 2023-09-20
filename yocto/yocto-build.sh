@@ -398,6 +398,13 @@ IMAGE_INSTALL:append = "\\
      i2c-tools-misc \\
 "
 
+TOOLCHAIN_HOST_TASK:append = " \\
+    nativesdk-python3-pyyaml \\
+    nativesdk-python3-jinja2 \\
+    nativesdk-python3-ply \\
+    nativesdk-python3-sphinx \\
+"
+
 DISTRO_FEATURES += " systemd usrmerge"
 VIRTUAL-RUNTIME_init_manager = "systemd"
 DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
