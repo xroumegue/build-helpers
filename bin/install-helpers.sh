@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 rootdir=$(dirname "$(realpath "$0")")/..
-readarray -d '' scripts < <(find "${rootdir}" -maxdepth 2  -iname '*-build.sh'  -print0)
+readarray -d '' scripts < <(find "${rootdir}" -iname '*build.sh'  -print0)
 
 for script in "${scripts[@]}";
 do
