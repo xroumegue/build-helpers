@@ -80,8 +80,8 @@ sysrootdir=${sysrootdir:-${sysroot_target_default}}
 installdir=${installdir:-${installdir_default}}
 cross_compilation_conf=$(realpath "${cross_compilation_conf:-${cross_compilation_conf_default}}")
 
-meson=/usr/bin/meson
-ninja=/usr/bin/ninja
+meson=${MESON:-$(which meson)}
+ninja=${NINJA:-$(which ninja)}
 
 function generate_cross_compilation_conf {
 	template_file="${rootdir}"/etc/cross-compilation.conf.template
