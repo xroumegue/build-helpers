@@ -222,6 +222,8 @@ downloaddir=${downloaddir:-${downloaddir_default}}
 downloadmirror_default=${downloadmirror_default:-}
 downloadmirror=${downloadmirror:-${downloadmirror_default}}
 
+srcdir=${workdir}
+
 function add_repo {
     local git_repository
     local git_name
@@ -305,22 +307,39 @@ EOF
     fi
 }
 
-#
-# MASTER
-#
 
-function do_enter_env_master {
-    _gcc=$(realpath "$(which gcc)")
-    if [ ! "${_gcc##*/}" == x86_64-pokysdk-linux-gcc ];then
+function install_buildtools {
+    cd ${srcdir}
+
+    if [ -n "${force}" ] && $force; then
         rm -rf poky/buildtools
+    fi
+
+    if [ ! -d poky/buildtools ]; then
         poky/scripts/install-buildtools
         if [[ -n "$extra_ca_cert" ]] && [ -f ${extra_ca_cert} ]; then
             echo "Appending ${extra_ca_cert} to GIT_SSL_CAINFO file"
             cat ${extra_ca_cert} >> poky/buildtools/sysroots/x86_64-pokysdk-linux/etc/ssl/certs/ca-certificates.crt
         fi
-        # shellcheck disable=SC1091
-        . poky/buildtools/environment-setup-x86_64-pokysdk-linux
     fi
+    cd -
+}
+
+function source_buildtools {
+    _gcc=$(realpath "$(which gcc)")
+    if [ ! "${_gcc##*/}" == x86_64-pokysdk-linux-gcc ];then
+        # shellcheck disable=SC1091
+        . ${srcdir}/poky/buildtools/environment-setup-x86_64-pokysdk-linux
+    fi
+}
+
+#
+# MASTER
+#
+
+function do_enter_env_master {
+    install_buildtools
+    source_buildtools
     if [ -z "$OEROOT" ];
     then
         # shellcheck disable=SC1091
