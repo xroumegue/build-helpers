@@ -504,14 +504,58 @@ function do_custom_conf_nxp {
     true
 }
 
+#
+# Petalinux
+#
+
+function do_setup_petalinux {
+    srcdir=${workdir}/sources
+
+    repo init -u "${urlmanifest}" -b "${branch}" -m "${manifest}".xml
+    add_repo https://github.com/xroumegue/meta-staging petalinux
+
+    if "${update}" || ! [ -d sources ] ;
+    then
+        repo sync "-j$(nproc)"
+    fi
+
+    do_enter_env
+
+    # Add layer(s)
+    add_layer "${workdir}"/meta-staging
+
+    if [ -n "${force}" ] && $force;
+    then
+        sed -i -e '/# Customization/,$d' conf/local.conf
+    fi
+
+    if [ "$(grep -c -E "# Customization" conf/local.conf)" -eq 0 ]
+    then
+        do_common_setup
+    fi
+}
+
+function do_enter_env_petalinux {
+    srcdir=${workdir}/sources
+    install_buildtools
+    source_buildtools
+    if [ -z "$OEROOT" ];
+    then
+        # shellcheck disable=SC1091
+        . setupsdk "${builddir}"
+    fi
+}
+
 declare -A setup_funcs=(
     [master]=do_setup_master
     [nxp]=do_setup_nxp
+    [petalinux]=do_setup_petalinux
 )
 
 declare -A enter_env_funcs=(
     [master]=do_enter_env_master
     [nxp]=do_enter_env_nxp
+    [petalinux]=do_enter_env_petalinux
 )
 
 declare -A custom_conf_funcs=(
