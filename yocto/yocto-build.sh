@@ -266,6 +266,8 @@ BB_NICE_LEVEL = "10"
 MACHINE = "${machine}"
 DISTRO = "${distro}"
 
+INHERIT += "rm_work"
+
 EOF
 
     if [ -n "${downloaddir}" ];then
