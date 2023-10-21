@@ -47,6 +47,7 @@ cat << EOF
 
     Possible commands:
         setup
+        list
         build
         sdk
         deploy
@@ -575,6 +576,11 @@ function do_custom_conf {
     "${custom_conf_funcs[${configuration}]}"
 }
 
+function do_list {
+    log "List configurations"
+    list_configurations
+}
+
 function do_setup {
     log "Setup environment"
     "${setup_funcs[${configuration}]}"
@@ -635,6 +641,9 @@ cd "${workdir}" || fatal "Change to working directory failed"
 for cmd in "${commands[@]}";
 do
     case "$cmd" in
+        "list")
+            do_list
+            ;;
         "setup")
             do_setup
             ;;
