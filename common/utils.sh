@@ -18,6 +18,18 @@ function fatal {
     exit 1
 }
 
+function list_configurations {
+	(
+    # shellcheck disable=SC2154
+	cd "${rootdir}"/etc/ || exit
+	for f in env-default-*.sh;
+	do
+		a=${f#env-default-*}
+		echo "${a%*.sh}"
+	done
+	)
+}
+
 function get_default {
     if [ -z ${buildenv+x} ];
     then
