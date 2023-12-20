@@ -401,8 +401,6 @@ IMAGE_INSTALL:append = "\\
      gstreamer1.0-plugins-good \\
      gstreamer1.0-plugins-bad \\
      gstreamer1.0-plugins-base \\
-     libcamera \\
-     libcamera-gst \\
      libdrm \\
      libdrm-drivers \\
      libdrm-tests \\
