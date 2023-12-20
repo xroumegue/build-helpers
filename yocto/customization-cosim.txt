@@ -3,15 +3,12 @@ EXTRA_IMAGE_FEATURES += "\
   debug-tweaks \
   nfs-client \
   ssh-server-openssh \
-  tools-debug \
-  tools-sdk \
   package-management \
 "
 
 PACKAGE_CLASSES = "package_rpm"
 
 IMAGE_INSTALL:append = "\
-     cmake \
      gstreamer1.0-plugins-good \
      gstreamer1.0-plugins-bad \
      gstreamer1.0-plugins-base \
@@ -19,6 +16,7 @@ IMAGE_INSTALL:append = "\
      python3-setuptools \
      python3-venv \
      v4l-utils \
+     devmem2 \
 "
 
 TOOLCHAIN_HOST_TASK:append = " \
