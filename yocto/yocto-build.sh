@@ -351,9 +351,9 @@ function do_enter_env_master {
 }
 
 function do_setup_master {
-    add_repo git://git.yoctoproject.org/poky master
-    add_repo git://git.yoctoproject.org/meta-arm master
-    add_repo git://git.openembedded.org/meta-openembedded master
+    add_repo https://git.yoctoproject.org/poky master
+    add_repo https://git.yoctoproject.org/meta-arm master
+    add_repo https://git.openembedded.org/meta-openembedded master
     add_repo https://github.com/xroumegue/meta-staging main
 
     do_enter_env
