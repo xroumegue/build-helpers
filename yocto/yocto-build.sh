@@ -11,6 +11,8 @@ cat << EOF
             Show some verbose logs
         --configuration
             Yocto configuration (master, nxp)
+        --customization
+            Yocto image customization
         --image
             Image name to build
         --branch
@@ -56,7 +58,7 @@ EOF
 }
 
 opts_short=vh
-opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:,hashserver:,prserver:,downloadmirror:,configuration:,branch:,manifest:,urlmanifest:,machine:,distro:,buildenv:,extra_ca_cert:
+opts_long=verbose,help,update,force,image:,builddir:,sdkdir:,installdir:,workdir:,sstatedir:,downloaddir:,sstatemirror:,hashserver:,prserver:,downloadmirror:,configuration:,customization:,branch:,manifest:,urlmanifest:,machine:,distro:,buildenv:,extra_ca_cert:
 
 options=$(getopt -o ${opts_short} -l ${opts_long} -- "$@" )
 
@@ -87,6 +89,10 @@ while true; do
         --configuration)
             shift
             configuration=$1
+            ;;
+        --customization)
+            shift
+            customization=$1
             ;;
         --builddir)
             shift
@@ -184,6 +190,9 @@ distro=${distro:-${distro_default}}
 
 configuration_default=${configuration_default:-master}
 configuration=${configuration:-${configuration_default}}
+
+customization_default=${customization_default:-full}
+customization=${customization:-${customization_default}}
 
 builddir=${builddir:-build-"${image}"}
 
@@ -379,78 +388,13 @@ function do_setup_master {
 }
 
 function do_custom_conf_master {
-    cat <<EOF >> conf/local.conf
-
-EXTRA_IMAGE_FEATURES += "\\
-  debug-tweaks \\
-  nfs-client \\
-  ssh-server-openssh \\
-  tools-debug \\
-  tools-sdk \\
-  package-management \\
-"
-
-PACKAGE_CLASSES = "package_rpm"
-
-PACKAGECONFIG:append:pn-libcamera = " gst python"
-PACKAGECONFIG:append:pn-gstreamer1.0-plugins-bad = " kms"
-PACKAGECONFIG:remove:pn-perf = " scripting"
-
-IMAGE_INSTALL:append = "\\
-     cmake \\
-     gstreamer1.0-plugins-good \\
-     gstreamer1.0-plugins-bad \\
-     gstreamer1.0-plugins-base \\
-     libdrm \\
-     libdrm-drivers \\
-     libdrm-tests \\
-     perf \\
-     python3-pip \\
-     python3-setuptools \\
-     python3-venv \\
-     v4l-utils \\
-     yavta \\
-     opencv \\
-     opencv-dev \\
-     opencv-staticdev \\
-     libgpiod-tools \\
-     i2c-tools \\
-     i2c-tools-misc \\
-"
-
-TOOLCHAIN_HOST_TASK:append = " \\
-    nativesdk-python3-pyyaml \\
-    nativesdk-python3-jinja2 \\
-    nativesdk-python3-ply \\
-    nativesdk-python3-sphinx \\
-"
-
-DISTRO_FEATURES += " systemd usrmerge"
-VIRTUAL-RUNTIME_init_manager = "systemd"
-DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
-IMAGE_FSTYPES = "tar.bz2"
-
-DISTRO_FEATURES:append = " opengl wayland pam"
-CORE_IMAGE_EXTRA_INSTALL += " wayland weston"
-
-PREFERRED_PROVIDER_virtual/kernel = "linux-imx"
-TOOLCHAIN_TARGET_TASK:append = " kernel-headers"
-
-SERIAL_CONSOLES = "115200;ttymxc1"
-
-# Use by mount-dev to get the nfs server ip address
-IMAGE_INSTALL:append = " mount-dev "
-#CONF_CUSTOM_NFS_IP_ADDRESS = "xxx.xxx.xxx.xxx"
-
-# No TRNG, accelerate boot time
-PACKAGECONFIG:remove:pn-openssh = "rng-tools"
-MACHINE_EXTRA_RRECOMMENDS += "ssh-pregen-hostkeys"
-
-PREFERRED_PROVIDER_base-utils = "packagegroup-core-base-utils"
-VIRTUAL-RUNTIME_base-utils = "packagegroup-core-base-utils"
-VIRTUAL-RUNTIME_base-utils-hwclock = "util-linux-hwclock"
-
-EOF
+    customization_file=${rootdir}/yocto/customization-${customization}.txt
+    if [ ! -f "${customization_file}" ];
+    then
+        echo "${customization_file}" does not exist. Fallback to customization-full.txt
+        customization_file=${rootdir}/yocto/customization-full.txt
+    fi
+    cat "${customization_file}" >> conf/local.conf
 }
 
 #
