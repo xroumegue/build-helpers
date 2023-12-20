@@ -1,0 +1,43 @@
+
+EXTRA_IMAGE_FEATURES += "\
+  debug-tweaks \
+  nfs-client \
+  ssh-server-openssh \
+  tools-debug \
+  tools-sdk \
+  package-management \
+"
+
+PACKAGE_CLASSES = "package_rpm"
+
+IMAGE_INSTALL:append = "\
+     cmake \
+     gstreamer1.0-plugins-good \
+     gstreamer1.0-plugins-bad \
+     gstreamer1.0-plugins-base \
+     python3-pip \
+     python3-setuptools \
+     python3-venv \
+     v4l-utils \
+"
+
+TOOLCHAIN_HOST_TASK:append = " \
+    nativesdk-python3-pyyaml \
+    nativesdk-python3-jinja2 \
+    nativesdk-python3-ply \
+    nativesdk-python3-sphinx \
+"
+
+INIT_MANAGER = "mdev-busybox"
+IMAGE_FSTYPES = "tar.bz2"
+
+SERIAL_CONSOLES = "115200;console"
+
+# No TRNG, accelerate boot time
+PACKAGECONFIG:remove:pn-openssh = "rng-tools"
+MACHINE_EXTRA_RRECOMMENDS += "ssh-pregen-hostkeys"
+
+PREFERRED_PROVIDER_base-utils = "packagegroup-core-base-utils"
+VIRTUAL-RUNTIME_base-utils = "packagegroup-core-base-utils"
+VIRTUAL-RUNTIME_base-utils-hwclock = "util-linux-hwclock"
+
