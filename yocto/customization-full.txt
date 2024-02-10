@@ -55,6 +55,9 @@ IMAGE_FSTYPES = "tar.bz2"
 DISTRO_FEATURES:append = " wayland"
 CORE_IMAGE_EXTRA_INSTALL += "wayland"
 
+# pam is required for weston image if systemd
+DISTRO_FEATURES:append = " pam"
+
 PREFERRED_PROVIDER_virtual/kernel = "linux-mainline"
 #TOOLCHAIN_TARGET_TASK:append = " kernel-headers"
 
