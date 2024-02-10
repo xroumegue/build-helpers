@@ -45,16 +45,18 @@ TOOLCHAIN_HOST_TASK:append = " \
     nativesdk-python3-sphinx \
 "
 
-DISTRO_FEATURES += " systemd usrmerge"
-VIRTUAL-RUNTIME_init_manager = "systemd"
-DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
+INIT_MANAGER = "systemd"
+
+VIRTUAL-RUNTIME_syslog = ""
+VIRTUAL-RUNTIME_base-utils-syslog = ""
+
 IMAGE_FSTYPES = "tar.bz2"
 
-DISTRO_FEATURES:append = " opengl wayland pam"
-CORE_IMAGE_EXTRA_INSTALL += " wayland weston"
+DISTRO_FEATURES:append = " wayland"
+CORE_IMAGE_EXTRA_INSTALL += "wayland"
 
-PREFERRED_PROVIDER_virtual/kernel = "linux-imx"
-TOOLCHAIN_TARGET_TASK:append = " kernel-headers"
+PREFERRED_PROVIDER_virtual/kernel = "linux-mainline"
+#TOOLCHAIN_TARGET_TASK:append = " kernel-headers"
 
 SERIAL_CONSOLES = "115200;ttymxc1"
 
