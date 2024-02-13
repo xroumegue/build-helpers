@@ -9,6 +9,8 @@ cat << EOF
             This help message
         --verbose, -v
             Show some verbose logs
+        --buildenv, b
+            Default environment variable
         --configuration
             Yocto configuration (master, nxp)
         --customization
