@@ -366,7 +366,6 @@ function do_setup_master {
     add_repo https://git.yoctoproject.org/meta-arm master
     add_repo https://git.openembedded.org/meta-openembedded master
     add_repo https://github.com/xroumegue/meta-staging main
-    add_repo https://github.com/betafive/meta-linux-mainline master
 
     do_enter_env
 
@@ -377,7 +376,6 @@ function do_setup_master {
     add_layer "${workdir}"/meta-openembedded/meta-python
     add_layer "${workdir}"/meta-openembedded/meta-multimedia
     add_layer "${workdir}"/meta-staging
-    add_layer "${workdir}"/meta-linux-mainline
 
     if [ -n "${force}" ] && $force;
     then
