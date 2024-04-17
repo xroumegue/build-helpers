@@ -75,6 +75,7 @@ while true; do
     case "$1" in
         --verbose | -v)
             verbose=true
+            set -x
             ;;
         --help | -h)
             usage
