@@ -407,6 +407,7 @@ function do_custom_conf_master {
 
 function do_setup_nxp {
     repo init -u "${urlmanifest}" -b "${branch}" -m "${manifest}".xml
+    add_repo ssh://git@bitbucket.sw.nxp.com/~nxf38918/meta-imx-staging main
 
     if "${update}" || ! [ -d sources ] ;
     then
@@ -424,6 +425,8 @@ function do_setup_nxp {
     else
         do_enter_env
     fi
+
+    add_layer "${workdir}"/meta-imx-staging
 
     if [ -n "${force}" ] && $force;
     then
