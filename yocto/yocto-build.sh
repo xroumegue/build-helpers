@@ -215,7 +215,7 @@ urlmanifest=${urlmanifest:-${urlmanifest_default}}
 
 installdir=${installdir:-${installdir_default}}
 sdkdir=${sdkdir:-${sdkdir_default}}
-workdir=${workdir:-$(pwd)}
+workdir=$(realpath ${workdir:-$(pwd)})
 #dependency on workdir
 sstatedir_default=${sstatedir_default:-${workdir}/sstate-cache}
 sstatedir=${sstatedir:-${sstatedir_default}}
