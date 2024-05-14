@@ -185,7 +185,7 @@ buildenv=${buildenv:-default}
 image_default=${image_default:-core-image-base}
 image=${image:-${image_default}}
 
-machine_default=${machine_default:-generic-arm64}
+machine_default=${machine_default:-genericarm64}
 machine=${machine:-${machine_default}}
 
 distro_default=${distro_default:-poky}
