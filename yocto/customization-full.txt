@@ -75,3 +75,4 @@ PREFERRED_PROVIDER_base-utils = "packagegroup-core-base-utils"
 VIRTUAL-RUNTIME_base-utils = "packagegroup-core-base-utils"
 VIRTUAL-RUNTIME_base-utils-hwclock = "util-linux-hwclock"
 
+INITRAMFS_MAXSIZE ?= "262144"
