@@ -125,6 +125,10 @@ while true; do
             shift
             machine=$1
             ;;
+        --manifest)
+            shift
+            manifest=$1
+            ;;
         --distro)
             shift
             distro=$1
